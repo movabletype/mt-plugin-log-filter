@@ -1,0 +1,10 @@
+
+name: Log Filter
+description: Filter what goes into the activity log
+version: 0.5
+
+config_settings:
+    LogExclude:
+        default: ''
+
+init: $LogFilter::LogFilter::Util::init

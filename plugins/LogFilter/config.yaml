@@ -1,7 +1,7 @@
 
 name: Log Filter
 description: Filter what goes into the activity log
-version: 0.5
+version: 0.5.1
 
 config_settings:
     LogExclude:

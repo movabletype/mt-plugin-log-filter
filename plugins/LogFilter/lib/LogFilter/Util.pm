@@ -1,4 +1,3 @@
-
 package LogFilter::Util;
 
 use strict;

@@ -1,5 +1,5 @@
-This plugin was created to to limit which activities are written to the
-Activity Log (and hence the internal mt_log table in the database).
+This plugin was created to limit which activities are written to the Activity
+Log (and hence the internal mt_log table in the database).
 
 Specifically, it adds a new mt-config.cgi setting: LogExclude. LogExclude takes
 a comma separated list of log categories to exclude from the activity log;

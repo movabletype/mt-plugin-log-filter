@@ -5,6 +5,8 @@ version: 0.5.2
 config_settings:
     LogExclude:
         default: ''
+    LogExcludeApp:
+        default: ''
 
 init: $LogFilter::LogFilter::Util::init
 init_app: $LogFilter::LogFilter::Util::init_app

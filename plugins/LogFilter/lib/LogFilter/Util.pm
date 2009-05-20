@@ -12,20 +12,27 @@ sub init {
 
     no warnings 'redefine';
     my $orig_log = \&MT::log;
-    *MT::log = sub { filtered_log( $orig_log, , \%excluded, @_ ) };
+    *MT::log = sub { filtered_log( $orig_log,, \%excluded, @_ ) };
 
     1;
 }
 
 sub init_app {
-    require MT::App;
-    my $log_exclude = MT->config->LogExclude;
-    return 1 unless $log_exclude;
-    my %excluded = map { $_ => 1 } split( /\s*,\s*/, $log_exclude );
+    my ( $plugin, $app ) = @_;
+    my $log_exclude     = MT->config->LogExclude;
+    my $log_exclude_app = MT->config->LogExcludeApp;
+    return 1 unless ( $log_exclude || $log_exclude_app );
+    my %excluded_apps = map { $_ => 1 } split( /\s*,\s*/, $log_exclude_app );
+    my %excluded      = map { $_ => 1 } split( /\s*,\s*/, $log_exclude );
 
     no warnings 'redefine';
     my $orig_log = \&MT::App::log;
-    *MT::App::log = sub { filtered_log( $orig_log, \%excluded, @_ ); };
+    if ( $excluded_apps{ $app->id } ) {
+        *MT::App::log = sub { 1 };
+    }
+    else {
+        *MT::App::log = sub { filtered_log( $orig_log, \%excluded, @_ ); };
+    }
 
     1;
 }
@@ -33,6 +40,7 @@ sub init_app {
 sub filtered_log {
     my $orig_log = shift;
     my $excluded = shift;
+
     # cases:
     #   MT::log ($msg)
     #   MT->log ($msg)

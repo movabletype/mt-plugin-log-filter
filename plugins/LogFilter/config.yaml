@@ -7,3 +7,4 @@ config_settings:
         default: ''
 
 init: $LogFilter::LogFilter::Util::init
+init_app: $LogFilter::LogFilter::Util::init_app

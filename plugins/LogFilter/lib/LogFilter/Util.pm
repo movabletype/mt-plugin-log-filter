@@ -12,28 +12,46 @@ sub init {
 
     no warnings 'redefine';
     my $orig_log = \&MT::log;
-    *MT::log = sub {
+    *MT::log = sub { filtered_log( $orig_log, , \%excluded, @_ ) };
 
-        # cases:
-        #   MT::log ($msg)
-        #   MT->log ($msg)
-        #   MT->log ({ hash }) <- this is the one we can block
-        return 1
-          if (
-            @_ > 1
-            && (
-                (
-                       ( ref( $_[1] ) eq 'HASH' )
-                    && ( $_[1]->{category} )
-                    && ( $excluded{ $_[1]->{category} } )
-                )
-                || (   ( ref( $_[1] ) eq 'MT::Log' )
-                    && ( $excluded{ $_[1]->category } ) )
+    1;
+}
+
+sub init_app {
+    require MT::App;
+    my $log_exclude = MT->config->LogExclude;
+    return 1 unless $log_exclude;
+    my %excluded = map { $_ => 1 } split( /\s*,\s*/, $log_exclude );
+
+    no warnings 'redefine';
+    my $orig_log = \&MT::App::log;
+    *MT::App::log = sub { filtered_log( $orig_log, \%excluded, @_ ); };
+
+    1;
+}
+
+sub filtered_log {
+    my $orig_log = shift;
+    my $excluded = shift;
+    # cases:
+    #   MT::log ($msg)
+    #   MT->log ($msg)
+    #   MT->log ({ hash }/$obj) <- this is the one we can block
+    return 1
+      if (
+        @_ > 1
+        && (
+            (
+                   ( ref( $_[1] ) eq 'HASH' )
+                && ( $_[1]->{category} )
+                && ( $excluded->{ $_[1]->{category} } )
             )
-          );
+            || (   ( ref( $_[1] ) eq 'MT::Log' )
+                && ( $excluded->{ $_[1]->category } ) )
+        )
+      );
 
-        $orig_log->(@_);
-    };
+    $orig_log->(@_);
 }
 
 1;
